@@ -99,6 +99,10 @@ aside {
     margin: 1rem;
   }
 
+  section {
+    height: 500px;
+  }
+
   aside {
     margin: 1rem 0;
   }
