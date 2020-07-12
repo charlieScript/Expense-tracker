@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import './stylesheet/Form.css';
 import Expense from './Expense';
+import localstorageFunctions from './LocalStorage';
 // holds the basic data
 const dataStr = [];
+let newDataStr, newTotal;
 
 class Form extends Component {
   constructor(props) {
@@ -16,6 +18,15 @@ class Form extends Component {
       date: '',
       total: 0,
     };
+  }
+
+  componentDidMount() {
+    newDataStr = localstorageFunctions.getData('expense');
+    newTotal = localstorageFunctions.getData('total');
+    this.setState({
+      data: newDataStr,
+      total: newTotal,
+    });
   }
 
   handleAmount = (e) => {
@@ -53,13 +64,16 @@ class Form extends Component {
       date,
     });
 
-    this.setState({
-      data: dataStr,
-      amount: '',
-      to: '',
-      note: '',
-      date: '',
-    });
+    this.setState(
+      {
+        data: dataStr,
+        amount: '',
+        to: '',
+        note: '',
+        date: '',
+      },
+      localstorageFunctions.storeData('expense', dataStr),
+    );
     this.getTotal();
   };
 
@@ -68,22 +82,31 @@ class Form extends Component {
     dataStr.forEach((i) => {
       initialValue += i.amount;
     });
-    this.setState({
-      total: initialValue,
-    });
+    this.setState(
+      {
+        total: initialValue,
+      },
+      localStorage.setItem('total', initialValue),
+    );
   };
 
   clearExp = () => {
-    this.setState({
-      data: [],
-      total: ''
-    });
+    this.setState(
+      {
+        data: [],
+        total: '',
+      },
+      localstorageFunctions.clearData('expense'),
+      localStorage.removeItem('total'),
+    );
   };
 
   render() {
-    const expenseList = this.state.data.map((exp, index) => (
-      <Expense expense={exp} key={index} />
-    ));
+    const expenseList = this.state.data
+      ? this.state.data.map((exp, index) => (
+          <Expense expense={exp} key={index} />
+        ))
+      : null;
     return (
       <div>
         <div className="card">
