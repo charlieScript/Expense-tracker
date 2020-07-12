@@ -1,14 +1,15 @@
 import React from 'react';
-import './index.css'
-
-
+import './index.css';
+import Header from './components/Header';
+import Form from './components/Form';
 
 function App() {
-  return (
-    <div className="App">
-      
-    </div>
-  );
+    return (
+        <div className="App">
+            <Header />
+            <Form />
+        </div>
+    );
 }
 
 export default App;
