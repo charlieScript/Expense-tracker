@@ -1,7 +1,5 @@
 .card {
-  /* outline: 1px solid red; */
-  display: grid;
-  grid-template-columns: repeat(2 ,1fr);
+  display: flex;
   margin: 1rem 6rem;
   column-gap: 20px;
 }
@@ -11,7 +9,7 @@ form {
   flex-direction: column;
   padding: 0.5rem 1rem;
   color: white;
-  margin: 1rem 0;
+  margin: 1rem 0 .1em;
 }
 
 .input-group {
@@ -21,23 +19,38 @@ form {
 }
 
 .input-group input {
-  padding: 3px;
+  padding: .5em;
   margin-top: 3px;
-  font-weight: bolder;
+  font-size: 1em;
+  border-radius: 5px;
+  font-weight: 400;
+  outline: none;
+  border: 1px solid #999999;
+  font-family: "Nunito", sans-serif;
 }
 
 textarea {
-  font-weight: bolder;
-  font-size: large;
+  font-size: 1em;
+  padding: .5em;
+  margin-top: 3px;
+  border-radius: 5px;
+  font-weight: 400;
+  outline: none;
+  border: 1px solid #999999;
+  font-family: "Nunito", sans-serif;
 }
 
 input[type="submit"] {
+  margin-top: 2em;
   padding: 10px;
+  font-size: .8em;
+  text-transform: uppercase;
   cursor: pointer;
   border: none;
   border-radius: 5px;
   background-color: steelblue;
   color: white;
+  font-family: "Nunito", sans-serif;
 }
 
 section {
@@ -45,28 +58,30 @@ section {
   background-color: rgba(39, 41, 59, 0.966);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
   width: 100%;
-  height: 550px;
+  height: 600px;
+  height: 600px;
 }
 
 .functions {
   display: flex;
   flex-direction: column;
-  width: 80%;
+  width: 96%;
   margin: auto;
   padding: 0.5rem;
   margin-bottom: 1rem;
-  border: 1px solid royalblue;
   border-top-left-radius: 10px;
 }
 
 .functions button {
   cursor: pointer;
+  text-transform: uppercase;
+  font-size: .8em;
   padding: 10px;
-  margin: 5px 0;
   border: none;
   border-radius: 5px;
   background-color: steelblue;
   color: white;
+  font-family: "Nunito", sans-serif;
   outline: none;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
 }
@@ -79,31 +94,32 @@ section {
   background-color: red;
 }
 
-aside {
+.aside {
   border-radius: 8px;
   background-color: rgba(39, 41, 59, 0.966);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
   width: 100%;
   padding: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+  max-width: 45vw;
+  word-wrap: break-word;
+}
+
+@media screen and (max-width: 1024px) and (min-width: 768px){
+  .aside {
+    max-width: 40vw;
+  }  
 }
 
 @media screen and (max-width: 750px) {
   .card {
     margin: 1rem;
+    flex-direction: column;
   }
-}
-
-@media screen and (max-width: 400px) {
-  .card {
-    grid-template-columns: 1fr;
-    margin: 1rem;
-  }
-
-  section {
-    height: 500px;
-  }
-
-  aside {
+  
+  .aside {
     margin: 1rem 0;
+    max-width: 95vw;
   }
 }

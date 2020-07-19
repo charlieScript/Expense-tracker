@@ -8,13 +8,19 @@ h3, p.total {
   padding: 1rem;
   border-radius: 10px;
   margin: 1rem 0;
+  font-family: "Nunito", sans-serif;
 }
 
 .resultTab {
-  display: grid;
-  grid-template-columns: 0.5fr 1fr;
   margin: 0.2rem 0;
   border-bottom: 1px solid grey;
+  word-wrap: break-word;
+}
+
+.resultTab .title{
+  padding-right: 1em;
+  font-weight: 600;
+  font-family: "Nunito", sans-serif;
 }
 
 .resultTab p:last-child {
