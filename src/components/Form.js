@@ -9,7 +9,7 @@ let newDataStr, newTotal;
 class Form extends Component {
   constructor(props) {
     super(props);
-
+    
     this.state = {
       data: [],
       amount: '',
@@ -58,6 +58,7 @@ class Form extends Component {
     const { amount, to, note, date } = this.state;
     //appends new state
     dataStr.push({
+      id: dataStr.length + 1,
       amount: parseInt(amount),
       to,
       note,
