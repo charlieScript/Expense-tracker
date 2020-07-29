@@ -1,189 +1,339 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './stylesheet/Form.css';
 import Expense from './Expense';
 import localstorageFunctions from './LocalStorage';
+
 // holds the basic data
-const dataStr = [];
-let newDataStr, newTotal;
+let dataStr = [];
 
-class Form extends Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      data: [],
-      amount: '',
-      to: '',
-      note: '',
-      date: '',
-      total: 0,
-    };
-  }
+function Form() {
+  const [data, setData] = useState([]);
+  const [state, setState] = useState({
+    amount: '',
+    to: '',
+    note: '',
+    date: '',
+    total: 0,
+  });
+  const [totalNum, setTotalNum] = useState(0);
 
-  componentDidMount() {
-    newDataStr = localstorageFunctions.getData('expense');
-    newTotal = localstorageFunctions.getData('total');
-    this.setState({
-      data: newDataStr,
-      total: newTotal,
+  // component did mount
+  useEffect(() => {
+    // loads data from local storage
+    // re initialised the local state from local storage
+    if (localstorageFunctions.getData('expense') !== undefined) {
+      dataStr = localstorageFunctions.getData('expense');
+      setTotalNum(localstorageFunctions.getData('total'));
+    }
+    // sets data on load to state
+    setData(dataStr);
+  }, []);
+
+  function handleInput(e) {
+    setState({
+      ...state,
+      [e.target.id]: e.target.value,
     });
   }
 
-  handleAmount = (e) => {
-    this.setState({
-      amount: e.target.value,
-    });
-  };
-
-  handleTo = (e) => {
-    this.setState({
-      to: e.target.value,
-    });
-  };
-
-  handleNote = (e) => {
-    this.setState({
-      note: e.target.value,
-    });
-  };
-
-  handleDate = (e) => {
-    this.setState({
-      date: e.target.value,
-    });
-  };
-
-  handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    const { amount, to, note, date } = this.state;
-    //appends new state
+    const { amount, to, note, date } = state;
+    // push input state to dataStr
     dataStr.push({
-      id: dataStr.length + 1,
       amount: parseInt(amount),
       to,
       note,
       date,
     });
+    // sets datastr to data
+    setData(dataStr, console.log(data));
 
-    this.setState(
-      {
-        data: dataStr,
-        amount: '',
-        to: '',
-        note: '',
-        date: '',
-      },
-      localstorageFunctions.storeData('expense', dataStr),
-    );
-    this.getTotal();
-  };
-
-  getTotal = () => {
-    let initialValue = 0;
-    dataStr.forEach((i) => {
-      initialValue += i.amount;
+    localstorageFunctions.storeData('expense', dataStr);
+    // resets form
+    setState({
+      amount: '',
+      to: '',
+      date: '',
+      note: '',
     });
-    this.setState(
-      {
-        total: initialValue,
-      },
-      localStorage.setItem('total', initialValue),
-    );
-  };
-
-  clearExp = () => {
-    this.setState(
-      {
-        data: [],
-        total: '',
-      },
-      localstorageFunctions.clearData('expense'),
-      localStorage.removeItem('total'),
-    );
-  };
-
-  render() {
-    const expenseList = this.state.data
-      ? this.state.data.map((exp, index) => (
-          <Expense expense={exp} key={index} />
-        ))
-      : null;
-    return (
-      <div>
-        <div className="card">
-          <section>
-            <form onSubmit={this.handleSubmit}>
-              <div className="input-group">
-                <label htmlFor="amount">Amount</label>
-                <input
-                  onChange={this.handleAmount}
-                  value={this.state.amount}
-                  type="number"
-                  id="amount"
-                  required
-                />
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="to">To</label>
-                <input
-                  type="text"
-                  value={this.state.to}
-                  onChange={this.handleTo}
-                  id="to"
-                  required
-                />
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="note">Note</label>
-                <textarea
-                  id="note"
-                  onChange={this.handleNote}
-                  cols="10"
-                  rows="5"
-                  required
-                  value={this.state.note}
-                ></textarea>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="date">Date</label>
-                <input
-                  type="date"
-                  value={this.state.date}
-                  onChange={this.handleDate}
-                  id="date"
-                  required
-                />
-              </div>
-
-              <input type="submit" value="Add expense" />
-            </form>
-            <div className="functions">
-              <button onClick={this.clearExp} className="clear">
-                Clear Expense
-              </button>
-            </div>
-          </section>
-          <aside>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderBottom: '1px solid grey',
-              }}
-            >
-              <h3>Expenses</h3>
-              <p className="total">Total Amount: #{this.state.total} </p>
-            </div>
-            {expenseList}
-          </aside>
-        </div>
-      </div>
-    );
+    getTotal();
   }
+
+  function getTotal() {
+    let initialValue = 0;
+    dataStr.forEach((num) => (initialValue += num.amount));
+    setTotalNum(initialValue);
+    localStorage.setItem('total', initialValue);
+  }
+
+  function clearExp() {
+    setData([]);
+    setTotalNum(0);
+    localstorageFunctions.clearData('expense');
+    localStorage.removeItem('total');
+  }
+
+  const expenseList = data
+    ? data.map((exp, index) => <Expense expense={exp} key={index} />)
+    : null;
+  return (
+    <div>
+      <div className="card">
+        <section>
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label htmlFor="amount">Amount</label>
+              <input
+                onChange={handleInput}
+                value={state.amount}
+                type="number"
+                id="amount"
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="to">To</label>
+              <input
+                type="text"
+                value={state.to}
+                onChange={handleInput}
+                id="to"
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="note">Note</label>
+              <textarea
+                id="note"
+                onChange={handleInput}
+                cols="10"
+                rows="5"
+                required
+                value={state.note}
+              ></textarea>
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="date">Date</label>
+              <input
+                type="date"
+                value={state.date}
+                onChange={handleInput}
+                id="date"
+                required
+              />
+            </div>
+
+            <input type="submit" value="Add expense" />
+          </form>
+          <div className="functions">
+            <button onClick={clearExp} className="clear">
+              Clear Expense
+            </button>
+          </div>
+        </section>
+        <aside>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: '1px solid grey',
+            }}
+          >
+            <h3>Expenses</h3>
+            <p className="total">Total Amount: #{totalNum} </p>
+          </div>
+          {expenseList}
+        </aside>
+      </div>
+    </div>
+  );
 }
 
 export default Form;
+
+// class Form extends Component {
+//   constructor(props) {
+//     super(props);
+
+//     this.state = {
+//       data: [],
+//       amount: '',
+//       to: '',
+//       note: '',
+//       date: '',
+//       total: 0,
+//     };
+//   }
+
+//   componentDidMount() {
+//     newDataStr = localstorageFunctions.getData('expense');
+//     newTotal = localstorageFunctions.getData('total');
+//     this.setState({
+//       data: newDataStr,
+//       total: newTotal,
+//     });
+//   }
+
+//   handleAmount = (e) => {
+//     this.setState({
+//       amount: e.target.value,
+//     });
+//   };
+
+//   handleTo = (e) => {
+//     this.setState({
+//       to: e.target.value,
+//     });
+//   };
+
+//   handleNote = (e) => {
+//     this.setState({
+//       note: e.target.value,
+//     });
+//   };
+
+//   handleDate = (e) => {
+//     this.setState({
+//       date: e.target.value,
+//     });
+//   };
+
+//   handleSubmit = (e) => {
+//     e.preventDefault();
+//     const { amount, to, note, date } = this.state;
+//     //appends new state
+//     dataStr.push({
+//       id: dataStr.length + 1,
+//       amount: parseInt(amount),
+//       to,
+//       note,
+//       date,
+//     });
+
+//     this.setState(
+//       {
+//         data: dataStr,
+// amount: '',
+// to: '',
+// note: '',
+// date: '',
+//       },
+//       localstorageFunctions.storeData('expense', dataStr),
+//     );
+//     this.getTotal();
+//   };
+
+//   getTotal = () => {
+//     let initialValue = 0;
+//     dataStr.forEach((i) => {
+//       initialValue += i.amount;
+//     });
+//     this.setState(
+//       {
+//         total: initialValue,
+//       },
+//       localStorage.setItem('total', initialValue),
+//     );
+//   };
+
+//   clearExp = () => {
+//     this.setState(
+//       {
+//         data: [],
+//         total: '',
+//       },
+//       localstorageFunctions.clearData('expense'),
+//       localStorage.removeItem('total'),
+//     );
+//   };
+
+//   render() {
+//     const expenseList = this.state.data
+//       ? this.state.data.map((exp, index) => (
+//           <Expense expense={exp} key={index} />
+//         ))
+//       : null;
+//     return (
+// <div>
+//   <div className="card">
+//     <section>
+//       <form onSubmit={this.handleSubmit}>
+//         <div className="input-group">
+//           <label htmlFor="amount">Amount</label>
+//           <input
+//             onChange={this.handleAmount}
+//             value={this.state.amount}
+//             type="number"
+//             id="amount"
+//             required
+//           />
+//         </div>
+
+//         <div className="input-group">
+//           <label htmlFor="to">To</label>
+//           <input
+//             type="text"
+//             value={this.state.to}
+//             onChange={this.handleTo}
+//             id="to"
+//             required
+//           />
+//         </div>
+
+//         <div className="input-group">
+//           <label htmlFor="note">Note</label>
+//           <textarea
+//             id="note"
+//             onChange={this.handleNote}
+//             cols="10"
+//             rows="5"
+//             required
+//             value={this.state.note}
+//           ></textarea>
+//         </div>
+
+//         <div className="input-group">
+//           <label htmlFor="date">Date</label>
+//           <input
+//             type="date"
+//             value={this.state.date}
+//             onChange={this.handleDate}
+//             id="date"
+//             required
+//           />
+//         </div>
+
+//         <input type="submit" value="Add expense" />
+//       </form>
+//       <div className="functions">
+//         <button onClick={this.clearExp} className="clear">
+//           Clear Expense
+//         </button>
+//       </div>
+//     </section>
+//     <aside>
+//       <div
+//         style={{
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: 'space-between',
+//           borderBottom: '1px solid grey',
+//         }}
+//       >
+//         <h3>Expenses</h3>
+//         <p className="total">Total Amount: #{this.state.total} </p>
+//       </div>
+//       {expenseList}
+//     </aside>
+//   </div>
+// </div>
+//     );
+//   }
+// }
+
+// export default Form;

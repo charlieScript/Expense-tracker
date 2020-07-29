@@ -7,12 +7,15 @@ function getData(dataName) {
     const data = JSON.parse(localStorage.getItem(dataName), []);
     return data;
   } else {
-    console.log('empty data');
+    return;
   }
 }
 
 function clearData(dataName) {
-  if (localStorage.getItem(dataName)) {
+  if (
+    localStorage.getItem(dataName) !== undefined &&
+    localStorage.getItem(dataName) !== undefined
+  ) {
     // if found sets the ds to an empty array
     localStorage.removeItem(dataName);
     console.log('data cleared');
