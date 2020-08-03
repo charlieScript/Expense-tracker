@@ -1,104 +1,92 @@
-import React, { Component } from "react";
-import "./stylesheet/Form.css";
-import Expense from "./Expense";
-import localstorageFunctions from "./LocalStorage";
+import React, { useState, useEffect } from 'react';
+import './stylesheet/Form.css';
+import Expense from './Expense';
+import localstorageFunctions from './LocalStorage';
+
 // holds the basic data
-const dataStr = [];
-let newDataStr, newTotal;
+let dataStr = [];
 
-class Form extends Component {
-  constructor(props) {
-    super(props);
+function Form() {
+  const [data, setData] = useState([]);
+  const [state, setState] = useState({
+    amount: '',
+    to: '',
+    note: '',
+    date: '',
+    total: 0,
+  });
+  const [totalNum, setTotalNum] = useState(0);
 
-    this.state = {
-      data: [],
-      amount: "",
-      to: "",
-      note: "",
-      date: "",
-      total: 0,
-    };
+  // component did mount
+  useEffect(() => {
+    // loads data from local storage
+    // re initialised the local state from local storage
+    if (localstorageFunctions.getData('expense') !== undefined) {
+      dataStr = localstorageFunctions.getData('expense');
+      setTotalNum(localstorageFunctions.getData('total'));
+    }
+    // sets data on load to state
+    setData(dataStr);
+  }, []);
 
-    this.onChange = this.onChange.bind(this);
-  }
-
-  componentDidMount() {
-    newDataStr = localstorageFunctions.getData("expense");
-    newTotal = localstorageFunctions.getData("total");
-    this.setState({
-      data: newDataStr,
-      total: newTotal,
+  function handleInput(e) {
+    setState({
+      ...state,
+      [e.target.id]: e.target.value,
     });
   }
 
-  onChange = (e) => {
-    this.setState({ [e.target.id]: e.target.value });
-  };
-
-  handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    const { amount, to, note, date } = this.state;
-    //appends new state
+    const { amount, to, note, date } = state;
+    // push input state to dataStr
     dataStr.push({
       amount: parseInt(amount),
       to,
       note,
       date,
     });
+    // sets datastr to data
+    setData(dataStr, console.log(data));
 
-    this.setState(
-      {
-        data: dataStr,
-        amount: "",
-        to: "",
-        note: "",
-        date: "",
-      },
-      localstorageFunctions.storeData("expense", dataStr)
-    );
-    this.getTotal();
-  };
-
-  getTotal = () => {
-    let initialValue = 0;
-    dataStr.forEach((i) => {
-      initialValue += i.amount;
+    localstorageFunctions.storeData('expense', dataStr);
+    // resets form
+    setState({
+      amount: '',
+      to: '',
+      date: '',
+      note: '',
     });
-    this.setState(
-      {
-        total: initialValue,
-      },
-      localStorage.setItem("total", initialValue)
-    );
-  };
+    getTotal();
+  }
 
-  clearExp = () => {
-    this.setState(
-      {
-        data: [],
-        total: "",
-      },
-      localstorageFunctions.clearData("expense"),
-      localStorage.removeItem("total")
-    );
-  };
+  function getTotal() {
+    let initialValue = 0;
+    dataStr.forEach((num) => (initialValue += num.amount));
+    setTotalNum(initialValue);
+    localStorage.setItem('total', initialValue);
+  }
 
-  render() {
-    const expenseList = this.state.data
-      ? this.state.data.map((exp, index) => (
-          <Expense expense={exp} key={index} />
-        ))
-      : null;
-    return (
+  function clearExp() {
+    setData([]);
+    setTotalNum(0);
+    localstorageFunctions.clearData('expense');
+    localStorage.removeItem('total');
+  }
+
+  const expenseList = data
+    ? data.map((exp, index) => <Expense expense={exp} key={index} />)
+    : null;
+  return (
+    <div>
       <div className="card">
         <section>
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <div className="input-group">
               <label htmlFor="amount">Amount</label>
               <input
-                autoComplete="off"
-                onChange={this.onChange}
-                value={this.state.amount}
+                onChange={handleInput}
+                value={state.amount}
                 type="number"
                 id="amount"
                 required
@@ -108,10 +96,9 @@ class Form extends Component {
             <div className="input-group">
               <label htmlFor="to">To</label>
               <input
-                autoComplete="off"
                 type="text"
-                value={this.state.to}
-                onChange={this.onChange}
+                value={state.to}
+                onChange={handleInput}
                 id="to"
                 required
               />
@@ -121,11 +108,11 @@ class Form extends Component {
               <label htmlFor="note">Note</label>
               <textarea
                 id="note"
-                onChange={this.onChange}
+                onChange={handleInput}
                 cols="10"
                 rows="5"
                 required
-                value={this.state.note}
+                value={state.note}
               ></textarea>
             </div>
 
@@ -133,8 +120,8 @@ class Form extends Component {
               <label htmlFor="date">Date</label>
               <input
                 type="date"
-                value={this.state.date}
-                onChange={this.onChange}
+                value={state.date}
+                onChange={handleInput}
                 id="date"
                 required
               />
@@ -143,7 +130,7 @@ class Form extends Component {
             <input type="submit" value="Add expense" />
           </form>
           <div className="functions">
-            <button onClick={this.clearExp} className="clear">
+            <button onClick={clearExp} className="clear">
               Clear Expense
             </button>
           </div>
@@ -158,13 +145,13 @@ class Form extends Component {
             }}
           >
             <h3>Expenses</h3>
-            <p className="total">Total Amount: #{this.state.total} </p>
+            <p className="total">Total Amount: #{totalNum} </p>
           </div>
           {expenseList}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default Form;
